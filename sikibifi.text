@@ -111,29 +111,47 @@ for idx, cookie_value in enumerate(cookies, 1):
         bar.close()
         continue
 
-    # Step 1: Get email and password from mail.tm
+    # Step 1: Get email and password from mail.tm with improved waiting
     try:
         driver.get("https://mail.tm/en/")
+        # รอปุ่ม "Generate" ให้คลิกได้
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//*[@id="__nuxt"]/div[1]/div[2]/div/div/div[2]/button[3]'))
         ).click()
-        bar.update(20)
+        bar.update(20)  # 20% - หน้าโหลดและคลิกปุ่มสำเร็จ
 
+        # รออีเมลและรหัสผ่านแบบ dynamic สูงสุด 30 วินาที
         email, email_password = "...", "..."
-        for _ in range(5):  # Retry up to 5 times
-            email = driver.find_element(By.XPATH, '//*[@id="reka-dropdown-menu-content-v-1-9"]/div[1]/div/div/p[2]').text
-            email_password = driver.find_element(By.XPATH, '//*[@id="reka-dropdown-menu-content-v-1-9"]/div[1]/div/div/p[3]/span').text
-            if email != "..." and email_password != "...":
-                break
-            time.sleep(0.5)  # Reduced delay
+        start_time = time.time()
+        while time.time() - start_time < 30:  # รอสูงสุด 30 วินาที
+            try:
+                email_elem = WebDriverWait(driver, 2).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="reka-dropdown-menu-content-v-1-9"]/div[1]/div/div/p[2]'))
+                )
+                password_elem = WebDriverWait(driver, 2).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="reka-dropdown-menu-content-v-1-9"]/div[1]/div/div/p[3]/span'))
+                )
+                email = email_elem.text
+                email_password = password_elem.text
+                if email != "..." and email_password != "...":
+                    break
+                fancy_log("⏳ Waiting for mail.tm to generate email...", Fore.YELLOW)
+                time.sleep(1)
+            except TimeoutException:
+                fancy_log("⏳ Still waiting for email elements...", Fore.YELLOW)
+                time.sleep(1)
+            except Exception as e:
+                fancy_log(f"⚠️ Temporary error while fetching email: {str(e)}", Fore.YELLOW)
+                time.sleep(1)
 
         if email == "..." or email_password == "...":
-            raise Exception("Email generation took too long")
+            raise Exception("Email generation timed out after 30s")
 
         bar.set_description(f"Account {idx}/{total_accounts} - Email generated")
-        bar.update(40)
+        bar.update(60)  # 80% - ได้อีเมลและรหัสผ่านแล้ว
         fancy_log(f" Email: {email}", Fore.CYAN)
         fancy_log(f" Email Password: {email_password}", Fore.CYAN)
+
     except Exception as e:
         fancy_log(f" Failed to generate email: {str(e)}", Fore.RED)
         driver.quit()

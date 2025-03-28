@@ -29,12 +29,11 @@ FANCY_HEADER = f"""
 """
 
 # Function to log messages with timestamp and aligned style
-def fancy_log(message, color=Fore.WHITE, log_file="log.txt"):
+def fancy_log(message, color=Fore.WHITE):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     styled_message = f"{Fore.MAGENTA}║ {timestamp} {color}{message:<40}{Style.RESET_ALL}"
     print(styled_message)
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] {message}\n")
+
 
 # Read cookies from user-provided file
 def read_cookies(file_path):
@@ -240,8 +239,7 @@ print(f"{Fore.CYAN}║  All {total_accounts}   processed successfully     ║")
 print(f"{Fore.CYAN}╚════════════════════════════════════════════════════╝")
 print(f"{Fore.MAGENTA}╔════════════════════════════════════════════════════╗")
 print(f"{Fore.MAGENTA}║ 📄 Check detail.txt for account details            ║")
-print(f"{Fore.MAGENTA}║ 📄 Check log.txt for full operation logs           ║")
 print(f"{Fore.MAGENTA}╚════════════════════════════════════════════════════╝")
 print(f"{Fore.YELLOW}╔════════════════════════════════════════════════════╗")
-print(f"{Fore.YELLOW}║ ⚡ Ez Tool | Powered by Yukita - Completed! ⚡    ║")
+print(f"{Fore.YELLOW}║  Ez Tool | Powered by Yukita - Completed!          ║")
 print(f"{Fore.YELLOW}╚════════════════════════════════════════════════════╝")
